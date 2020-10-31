@@ -12,6 +12,8 @@
     "typescript": "^4.0.3"
   },
   "scripts": {
-    "tournament": "ts-node tournament.ts"
+    "tournament": "ts-node tournament.ts",
+    "user": "ts-node user.ts",
+    "puzzle-game-all": "ts-node puzzle-game.ts"
   }
 }
