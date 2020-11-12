@@ -6,18 +6,35 @@ export interface Dbs {
   dest: Db;
 }
 
-export async function copyMany(dbs: Dbs, collName: string, allIds: string[], transform: (doc: any) => any = identity) {
+export async function copyManyIds(dbs: Dbs, collName: string, allIds: string[], transform: (doc: any) => any = identity) {
   return await sequence(
     chunkArray(allIds, 1000),
     async ids => {
       console.log(`${collName} ${ids.length}`);
       const docs = await dbs.source.collection(collName).find({ _id: { $in: ids } }).toArray();
-      return await dbs.dest.collection(collName).insertMany(docs.map(transform)).catch(ignoreDup);
+      return await insertMany(dbs.dest.collection(collName), docs.map(transform));
     });
+}
+export async function copyOneId(dbs: Dbs, collName: string, id: any) {
+  const exists = await dbs.dest.collection(collName).countDocuments({_id:id});
+  if (exists) return;
+  const doc = await dbs.source.collection(collName).findOne({_id: id});
+  if (doc) await insert(dbs.dest.collection(collName), doc);
+}
+
+export async function copySelect(dbs: Dbs, collName: string, select: any) {
+  return await drain(
+    collName,
+    dbs.source.collection(collName).find(select),
+    d => insert(dbs.dest.collection(collName), d)
+  );
 }
 
 export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
+}
+export async function insertMany(coll: Collection, docs: any[]) {
+  return await coll.insertMany(docs).catch(ignoreDup);
 }
 
 export async function drain(name: string, cursor: Cursor<any>, f: (doc: any) => Promise<any>): Promise<void> {
@@ -66,7 +83,7 @@ export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
       MongoClient.connect(url, { useUnifiedTopology: true })
     )
   );
-  const [source, dest] = clients.map(client => client.db(config.dbName));
+  const [source, dest] = clients.map(client => client.db());
   const dbs = { source, dest };
   console.log("Connected successfully to both DBs");
 

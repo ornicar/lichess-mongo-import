@@ -13,6 +13,7 @@
   },
   "scripts": {
     "tournament": "ts-node tournament.ts",
+    "tournament-recent": "ts-node tournament-recent.ts",
     "user": "ts-node user.ts",
     "puzzle-game-all": "ts-node puzzle-game.ts"
   }

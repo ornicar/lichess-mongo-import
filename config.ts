@@ -1,6 +1,6 @@
 export default {
-    source: 'mongodb://localhost:27117?readPreference=secondary',
-    dest: 'mongodb://localhost:27017',
+    source: 'mongodb://localhost:27117/lichess?readPreference=secondary',
+    dest: 'mongodb://localhost:27017/lichess',
     dbName: 'lichess',
     coll: {
       user: 'user4',
