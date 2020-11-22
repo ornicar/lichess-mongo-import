@@ -4,6 +4,7 @@ import { Dbs, run, insert, drain, copyOneId, copySelect } from './importer';
 async function recent(dbs: Dbs) {
 
   const tournaments = dbs.source.collection(config.coll.tournament).find({
+    _id: 'GMr4rgPz',
     schedule: { $exists: 1 },
     startsAt: {
       $lt: new Date(),
@@ -17,7 +18,8 @@ async function recent(dbs: Dbs) {
       await insert(dbs.dest.collection("tournament_player"), player);
       await copyOneId(dbs, config.coll.user, player.uid);
     });
-    return await copySelect(dbs, "tournament_pairing", { tid: t._id });
+    await copySelect(dbs, "tournament_pairing", { tid: t._id });
+    await copySelect(dbs, "tournament_leaderboard", { t: t._id });
   });
 }
 

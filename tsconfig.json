@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "target": "es2020",
     "alwaysStrict": true,
     "strictNullChecks": true,
     "noUnusedLocals": false,

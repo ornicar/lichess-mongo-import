@@ -4,6 +4,7 @@ import config from './config';
 export interface Dbs {
   source: Db;
   dest: Db;
+  puzzler: Db;
 }
 
 export async function copyManyIds(dbs: Dbs, collName: string, allIds: string[], transform: (doc: any) => any = identity) {
@@ -34,7 +35,7 @@ export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
 }
 export async function insertMany(coll: Collection, docs: any[]) {
-  return await coll.insertMany(docs).catch(ignoreDup);
+  return await coll.insertMany(docs, {ordered: false}).catch(ignoreDup);
 }
 
 export async function drain(name: string, cursor: Cursor<any>, f: (doc: any) => Promise<any>): Promise<void> {
@@ -48,7 +49,7 @@ export async function drain(name: string, cursor: Cursor<any>, f: (doc: any) => 
 }
 
 const ignoreDup = (err: MongoError) => {
-  if ([11000, 15, 22].includes(err.code!)) return;
+  if ([11000, 15, 22].includes(err.code as number)) return;
   console.error(err)
   process.exit(1)
 }
@@ -79,12 +80,12 @@ async function sequence<A, B>(args: A[], f: (a: A) => Promise<B>): Promise<B[]> 
 
 export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
   const clients = await Promise.all(
-    [config.source, config.dest].map(url =>
+    [config.source, config.dest, config.puzzler].map(url =>
       MongoClient.connect(url, { useUnifiedTopology: true })
     )
   );
-  const [source, dest] = clients.map(client => client.db());
-  const dbs = { source, dest };
+  const [source, dest, puzzler] = clients.map(client => client.db());
+  const dbs = { source, dest, puzzler };
   console.log("Connected successfully to both DBs");
 
   await f(dbs, process.argv.slice(2));
