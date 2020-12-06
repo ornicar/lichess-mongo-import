@@ -17,9 +17,9 @@ export async function copyManyIds(dbs: Dbs, collName: string, allIds: string[], 
     });
 }
 export async function copyOneId(dbs: Dbs, collName: string, id: any) {
-  const exists = await dbs.dest.collection(collName).countDocuments({_id:id});
+  const exists = await dbs.dest.collection(collName).countDocuments({ _id: id });
   if (exists) return;
-  const doc = await dbs.source.collection(collName).findOne({_id: id});
+  const doc = await dbs.source.collection(collName).findOne({ _id: id });
   if (doc) await insert(dbs.dest.collection(collName), doc);
 }
 
@@ -35,16 +35,35 @@ export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
 }
 export async function insertMany(coll: Collection, docs: any[]) {
-  return await coll.insertMany(docs, {ordered: false}).catch(ignoreDup);
+  return await coll.insertMany(docs, { ordered: false }).catch(ignoreDup);
 }
 
 export async function drain(name: string, cursor: Cursor<any>, f: (doc: any) => Promise<any>): Promise<void> {
   let nb = 0;
   while (await cursor.hasNext()) {
     nb++;
-    if (nb % 1000 === 0) console.log(`${name} ${nb}`);
     const doc = await cursor.next();
+    if (nb % 1000 === 0) console.log(`${name} ${nb}`);
     await f(doc);
+  }
+}
+
+export async function drainBatch(name: string, cursor: Cursor<any>, batchSize: number, f: (docs: any[]) => Promise<any>): Promise<void> {
+  let nb = 0;
+  let batch = [];
+  while (await cursor.hasNext()) {
+    nb++;
+    const doc = await cursor.next();
+    batch.push(doc);
+    if (nb % batchSize === 0) {
+      console.log(`${name} ${nb}`);
+      await f(batch);
+      batch = [];
+    }
+  }
+  if (batch.length) {
+    console.log(`${name} ${nb}`);
+    await f(batch);
   }
 }
 

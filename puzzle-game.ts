@@ -1,9 +1,9 @@
 import config from './config';
-import { Dbs, run, copyOneId, drain } from './importer';
+import { Dbs, run, copyManyIds, drainBatch } from './importer';
 
 async function all(dbs: Dbs) {
-  await drain('puzzle', dbs.puzzler.collection('puzzle2_puzzle').find(), async p => {
-    await copyOneId(dbs, config.coll.game, p.gameId);
+  await drainBatch('puzzle', dbs.puzzler.collection('puzzle2_puzzle').find(), 512, async ps => {
+    await copyManyIds(dbs, config.coll.game, ps.map(p => p.gameId));
   });
 }
 
