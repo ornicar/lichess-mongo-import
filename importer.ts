@@ -81,7 +81,7 @@ async function sequence<A, B>(args: A[], f: (a: A) => Promise<B>): Promise<B[]> 
 export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
   const clients = await Promise.all(
     [config.source, config.dest, config.puzzler].map(url =>
-      MongoClient.connect(url, { useUnifiedTopology: true })
+      MongoClient.connect(url)
     )
   );
   const [source, dest, puzzler] = clients.map(client => client.db());
