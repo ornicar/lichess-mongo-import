@@ -11,9 +11,17 @@ export async function copyManyIds(dbs: Dbs, collName: string, allIds: string[], 
   return await sequence(
     chunkArray(allIds, 1000),
     async ids => {
-      console.log(`${collName} ${ids.length}`);
-      const docs = await dbs.source.collection(collName).find({ _id: { $in: ids } }).toArray();
-      return await insertMany(dbs.dest.collection(collName), docs.map(transform));
+      const existing = await dbs.dest.collection(collName).distinct('_id', {_id:{$in:ids}});
+      const existingSet = new Set(existing);
+      const missing = ids.filter(id => !existingSet.has(id));
+      if (missing.length) {
+        const docs = await dbs.source.collection(collName).find({ _id: { $in: missing } }).toArray();
+        if (docs.length) {
+          console.log(`${collName} ${docs.length}`);
+          return await insertMany(dbs.dest.collection(collName), docs.map(transform));
+        }
+      }
+      return Promise.resolve();
     });
 }
 export async function copyOneId(dbs: Dbs, collName: string, id: any) {
