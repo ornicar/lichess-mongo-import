@@ -1,52 +1,60 @@
-import { Collection, Cursor, Db, MongoClient, MongoError } from 'mongodb';
+import { Collection, Db, FindCursor, MongoClient, MongoError } from 'mongodb';
 import config from './config';
 
+type Connect = () => Promise<Db>;
+
 export interface Dbs {
-  source: Db;
-  dest: Db;
-  puzzler: Db;
+  source: Connect;
+  dest: Connect;
+  puzzler: Connect;
+  study: Connect;
 }
 
-export async function copyManyIds(dbs: Dbs, collName: string, allIds: string[], transform: (doc: any) => any = identity) {
-  return await sequence(
-    chunkArray(allIds, 1000),
-    async ids => {
-      const existing = await dbs.dest.collection(collName).distinct('_id', {_id:{$in:ids}});
-      const existingSet = new Set(existing);
-      const missing = ids.filter(id => !existingSet.has(id));
-      if (missing.length) {
-        const docs = await dbs.source.collection(collName).find({ _id: { $in: missing } }).toArray();
-        if (docs.length) {
-          console.log(`${collName} ${docs.length}`);
-          return await insertMany(dbs.dest.collection(collName), docs.map(transform));
-        }
+export async function copyManyIds(
+  sourceDb: Db,
+  destDb: Db,
+  collName: string,
+  allIds: string[],
+  transform: (doc: any) => any = identity
+) {
+  return await sequence(chunkArray(allIds, 1000), async ids => {
+    const existing = await destDb.collection(collName).distinct<string>('_id', { _id: { $in: ids } });
+    const existingSet = new Set(existing);
+    const missing = ids.filter(id => !existingSet.has(id));
+    if (missing.length) {
+      const docs = await sourceDb
+        .collection(collName)
+        .find({ _id: { $in: missing } })
+        .toArray();
+      if (docs.length) {
+        console.log(`${collName} ${docs.length}`);
+        return await insertMany(destDb.collection(collName), docs.map(transform));
       }
-      return Promise.resolve();
-    });
+    }
+    return Promise.resolve();
+  });
 }
 export async function copyOneId(dbs: Dbs, collName: string, id: any) {
-  const exists = await dbs.dest.collection(collName).countDocuments({ _id: id });
+  const dest = await dbs.dest();
+  const source = await dbs.source();
+  const exists = await dest.collection(collName).countDocuments({ _id: id });
   if (exists) return;
-  const doc = await dbs.source.collection(collName).findOne({ _id: id });
-  if (doc) await insert(dbs.dest.collection(collName), doc);
+  const doc = await source.collection(collName).findOne({ _id: id });
+  if (doc) await insert(dest.collection(collName), doc);
 }
 
-export async function copySelect(dbs: Dbs, collName: string, select: any) {
-  return await drain(
-    collName,
-    dbs.source.collection(collName).find(select),
-    d => insert(dbs.dest.collection(collName), d)
-  );
+export async function copySelect(from: Db, to: Db, collName: string, select: any) {
+  return await drain(collName, from.collection(collName).find(select), d => insert(to.collection(collName), d));
 }
 
 export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
 }
 export async function insertMany(coll: Collection, docs: any[]) {
-  return await coll.insertMany(docs, { ordered: false }).catch(ignoreDup);
+  return docs.length ? await coll.insertMany(docs, { ordered: false }).catch(ignoreDup) : Promise.resolve();
 }
 
-export async function drain(name: string, cursor: Cursor<any>, f: (doc: any) => Promise<any>): Promise<void> {
+export async function drain(name: string, cursor: FindCursor<any>, f: (doc: any) => Promise<any>): Promise<void> {
   let nb = 0;
   while (await cursor.hasNext()) {
     nb++;
@@ -56,7 +64,12 @@ export async function drain(name: string, cursor: Cursor<any>, f: (doc: any) => 
   }
 }
 
-export async function drainBatch(name: string, cursor: Cursor<any>, batchSize: number, f: (docs: any[]) => Promise<any>): Promise<void> {
+export async function drainBatch(
+  name: string,
+  cursor: FindCursor<any>,
+  batchSize: number,
+  f: (docs: any[]) => Promise<any>
+): Promise<void> {
   let nb = 0;
   let batch = [];
   while (await cursor.hasNext()) {
@@ -77,15 +90,15 @@ export async function drainBatch(name: string, cursor: Cursor<any>, batchSize: n
 
 const ignoreDup = (err: MongoError) => {
   if ([11000, 15, 22].includes(err.code as number)) return;
-  console.error(err)
-  process.exit(1)
-}
+  console.error(err);
+  process.exit(1);
+};
 
 function chunkArray<A>(array: A[], size: number): A[][] {
-  let result: A[][] = []
+  let result: A[][] = [];
   for (let i = 0; i < array.length; i += size) {
-    let chunk = array.slice(i, i + size)
-    result.push(chunk)
+    let chunk = array.slice(i, i + size);
+    result.push(chunk);
   }
   return result;
 }
@@ -105,20 +118,29 @@ async function sequence<A, B>(args: A[], f: (a: A) => Promise<B>): Promise<B[]> 
   return [result, ...nexts];
 }
 
+const memoize = <A>(compute: () => A): (() => A) => {
+  let computed: A;
+  return () => {
+    if (computed === undefined) computed = compute();
+    return computed;
+  };
+};
+
 export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
-  const clients = await Promise.all(
-    [config.source, config.dest, config.puzzler].map(url =>
-      MongoClient.connect(url)
-    )
-  );
-  const [source, dest, puzzler] = clients.map(client => client.db());
-  const dbs = { source, dest, puzzler };
-  console.log("Connected successfully to both DBs");
-
+  const connect = async (url: string) => {
+    console.log('-------- ' + url);
+    const conn = await MongoClient.connect(url);
+    console.log('-------> DB');
+    return conn.db();
+  };
+  const dbs = {
+    source: memoize(() => connect(config.source)),
+    dest: memoize(() => connect(config.dest)),
+    puzzler: memoize(() => connect(config.puzzler)),
+    study: memoize(() => connect(config.study)),
+  };
   await f(dbs, process.argv.slice(2));
-
-  clients.forEach(c => c.close());
-  console.log("Successfully closed both DBs");
+  console.log('DONE');
 }
 
 /* process.on('unhandledRejection', (err) => { */

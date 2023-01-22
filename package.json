@@ -6,8 +6,7 @@
   "author": "Thibault Duplessis",
   "license": "MIT",
   "dependencies": {
-    "@types/mongodb": "^3.5.27",
-    "mongodb": "^3.6",
+    "mongodb": "^4.13",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   },
@@ -16,6 +15,10 @@
     "tournament-recent": "ts-node tournament-recent.ts",
     "user": "ts-node user.ts",
     "puzzle-game-all": "ts-node puzzle-game.ts",
-    "games-by-ids": "ts-node games-by-ids.ts"
+    "games-by-ids": "ts-node games-by-ids.ts",
+    "relay-studies": "ts-node relay-studies.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18"
   }
 }
