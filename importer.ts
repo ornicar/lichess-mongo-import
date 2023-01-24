@@ -1,7 +1,7 @@
 import { Collection, Db, FindCursor, MongoClient, MongoError } from 'mongodb';
 import config from './config';
 
-type Connect = () => Promise<Db>;
+type Connect = () => Promise<MongoClient>;
 
 export interface Dbs {
   source: Connect;
@@ -37,10 +37,10 @@ export async function copyManyIds(
 export async function copyOneId(dbs: Dbs, collName: string, id: any) {
   const dest = await dbs.dest();
   const source = await dbs.source();
-  const exists = await dest.collection(collName).countDocuments({ _id: id });
+  const exists = await dest.db().collection(collName).countDocuments({ _id: id });
   if (exists) return;
-  const doc = await source.collection(collName).findOne({ _id: id });
-  if (doc) await insert(dest.collection(collName), doc);
+  const doc = await source.db().collection(collName).findOne({ _id: id });
+  if (doc) await insert(dest.db().collection(collName), doc);
 }
 
 export async function copySelect(from: Db, to: Db, collName: string, select: any) {
@@ -118,20 +118,25 @@ async function sequence<A, B>(args: A[], f: (a: A) => Promise<B>): Promise<B[]> 
   return [result, ...nexts];
 }
 
-const memoize = <A>(compute: () => A): (() => A) => {
+interface Memo<A> {
+  (): A;
+  ifPresent(): A | undefined;
+}
+
+const memoize = <A>(compute: () => A): Memo<A> => {
   let computed: A;
-  return () => {
+  const m: any = () => {
     if (computed === undefined) computed = compute();
     return computed;
   };
+  m.ifPresent = () => computed;
+  return m as Memo<A>;
 };
 
 export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
   const connect = async (url: string) => {
     console.log('-------- ' + url);
-    const conn = await MongoClient.connect(url);
-    console.log('-------> DB');
-    return conn.db();
+    return await MongoClient.connect(url);
   };
   const dbs = {
     source: memoize(() => connect(config.source)),
@@ -140,6 +145,15 @@ export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
     study: memoize(() => connect(config.study)),
   };
   await f(dbs, process.argv.slice(2));
+  Object.entries(dbs).forEach(async ([name, memo]) => {
+    const connect = memo.ifPresent();
+    if (connect) {
+      console.log(`Closing ${name}`);
+      const conn = await connect;
+      await conn.close();
+    }
+  });
+
   console.log('DONE');
 }
 

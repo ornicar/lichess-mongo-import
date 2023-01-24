@@ -8,13 +8,14 @@ async function all(dbs: Dbs) {
   await drainBatch(
     'puzzle',
     puzzlerDb
+      .db()
       .collection('puzzle2_puzzle')
       .find({ createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 2) } }),
     1000,
     async ps => {
       await copyManyIds(
-        source,
-        dest,
+        source.db(),
+        dest.db(),
         config.coll.game,
         ps.map(p => p.gameId)
       );
