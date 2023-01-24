@@ -15,6 +15,7 @@
     "tournament-recent": "ts-node tournament-recent.ts",
     "user": "ts-node user.ts",
     "puzzle-game-all": "ts-node puzzle-game.ts",
+    "puzzle-game-user": "ts-node puzzle-game-user.ts",
     "games-by-ids": "ts-node games-by-ids.ts",
     "relay-studies": "ts-node relay-studies.ts"
   },
