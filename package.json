@@ -17,7 +17,8 @@
     "puzzle-game-all": "ts-node puzzle-game.ts",
     "puzzle-game-user": "ts-node puzzle-game-user.ts",
     "games-by-ids": "ts-node games-by-ids.ts",
-    "relay-studies": "ts-node relay-studies.ts"
+    "relay-studies": "ts-node relay-studies.ts",
+    "alarm-games": "ts-node alarm-games.ts"
   },
   "devDependencies": {
     "@types/node": "^18.11.18"
