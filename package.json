@@ -6,9 +6,9 @@
   "author": "Thibault Duplessis",
   "license": "MIT",
   "dependencies": {
-    "mongodb": "^4.13",
+    "mongodb": "^5.2",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.3"
+    "typescript": "^5.0"
   },
   "scripts": {
     "tournament": "ts-node tournament.ts",

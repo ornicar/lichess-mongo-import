@@ -18,13 +18,13 @@ export async function copyManyIds(
   transform: (doc: any) => any = identity
 ) {
   return await sequence(chunkArray(allIds, 1000), async ids => {
-    const existing = await destDb.collection(collName).distinct<string>('_id', { _id: { $in: ids } });
+    const existing = await destDb.collection(collName).distinct<string>('_id', { _id: { $in: ids } as any });
     const existingSet = new Set(existing);
     const missing = ids.filter(id => !existingSet.has(id));
     if (missing.length) {
       const docs = await sourceDb
         .collection(collName)
-        .find({ _id: { $in: missing } })
+        .find({ _id: { $in: missing } as any })
         .toArray();
       if (docs.length) {
         console.log(`${collName} ${docs.length}`);
