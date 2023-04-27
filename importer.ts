@@ -104,9 +104,12 @@ function chunkArray<A>(array: A[], size: number): A[][] {
 }
 
 export function transformUser(u: any) {
-  u.sha512 = false;
-  u.salt = '';
-  u.password = '11a6efa91890f4fdbdddf3c344d40b8a96eb5d5d'; // 'password'
+  return {
+    ...u,
+    sha512: false,
+    salt: '',
+    password: '11a6efa91890f4fdbdddf3c344d40b8a96eb5d5d', // 'password'
+  };
 }
 
 const identity = <A>(a: A) => a;

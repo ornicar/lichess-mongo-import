@@ -2,12 +2,14 @@ const replicargs = 'directConnection=true&serverSelectionTimeoutMS=2000&appName=
 export default {
   source: `mongodb://localhost:27117/lichess?readPreference=secondary&${replicargs}`,
   dest: `mongodb://0.0.0.0:27017/lichess`,
-  puzzler: `mongodb://0.0.0.0:27017/puzzler`,
+  puzzler: `mongodb://0.0.0.0:27017/lichess`,
   study: `mongodb://0.0.0.0:27118/study?${replicargs}`,
   dbName: `lichess`,
   coll: {
     user: `user4`,
     tournament: `tournament2`,
+    tournamentPairing: `tournament_pairing`,
+    tournamentPlayer: `tournament_player`,
     game: `game5`,
     analysis: `analysis2`,
     relayTour: `relay_tour`,
