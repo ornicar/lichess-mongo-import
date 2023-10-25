@@ -1,20 +1,24 @@
 import config from './config';
-import { Dbs, run, insert, drain, copyMany } from './importer';
+import { Dbs, run, insert, drain, copyManyIds } from './importer';
 
-async function one(dbs: Dbs, id: string) {
-    const user = await dbs.source.collection(config.coll.user).findOne({ _id: id });
-    await insert(dbs.dest.collection(config.coll.user), user);
+async function one(dbs: Dbs, id: any) {
+  const source = await dbs.source();
+  const dest = await dbs.dest();
+  const user = await source.db().collection(config.coll.user).findOne({ _id: id });
 
+  if (user) {
+    await insert(dest.db().collection(config.coll.user), user);
     const gameCollName = config.coll.game;
-    const games = dbs.source.collection(gameCollName).find({ us: user._id });
-    const gameColl = dbs.dest.collection(gameCollName);
+    const games = source.db().collection(gameCollName).find({ us: user._id });
+    const gameColl = dest.db().collection(gameCollName);
     const gameIds: string[] = [];
     await drain(gameCollName, games, g => {
-        gameIds.push(g._id);
-        return insert(gameColl, g);
+      gameIds.push(g._id);
+      return insert(gameColl, g);
     });
 
-    await copyMany(dbs, config.coll.analysis, gameIds);
+    await copyManyIds(source.db(), dest.db(), config.coll.analysis, gameIds);
+  }
 }
 
 run((dbs, args) => one(dbs, args[0].toLowerCase()));

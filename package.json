@@ -22,7 +22,8 @@
     "alarm-games": "ts-node alarm-games.ts",
     "game-analysis": "ts-node game-analysis.ts",
     "study-analysis": "ts-node study-analysis.ts",
-    "study": "ts-node study.ts"
+    "study": "ts-node study.ts",
+    "bulk-users": "ts-node bulk-users.ts"
   },
   "devDependencies": {
     "@types/node": "^18.11.18"

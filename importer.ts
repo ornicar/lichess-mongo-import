@@ -15,7 +15,7 @@ export async function copyManyIds(
   destDb: Db,
   collName: string,
   allIds: string[],
-  transform: (doc: any) => any = identity
+  transform: (doc: any) => any = identity,
 ) {
   return await sequence(chunkArray(allIds, 1000), async ids => {
     const existing = await destDb.collection(collName).distinct<string>('_id', { _id: { $in: ids } as any });
@@ -50,6 +50,9 @@ export async function copySelect(from: Db, to: Db, collName: string, select: any
 export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
 }
+export async function upsert(coll: Collection, doc: any) {
+  return await coll.updateOne({ _id: doc._id }, { $set: doc }, { upsert: true });
+}
 export async function insertMany(coll: Collection, docs: any[]) {
   return docs.length ? await coll.insertMany(docs, { ordered: false }).catch(ignoreDup) : Promise.resolve();
 }
@@ -68,7 +71,7 @@ export async function drainBatch(
   name: string,
   cursor: FindCursor<any>,
   batchSize: number,
-  f: (docs: any[]) => Promise<any>
+  f: (docs: any[]) => Promise<any>,
 ): Promise<void> {
   let nb = 0;
   let batch = [];
