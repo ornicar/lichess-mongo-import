@@ -23,9 +23,11 @@
     "game-analysis": "ts-node game-analysis.ts",
     "study-analysis": "ts-node study-analysis.ts",
     "study": "ts-node study.ts",
-    "bulk-users": "ts-node bulk-users.ts"
+    "bulk-users": "ts-node bulk-users.ts",
+    "coach-users": "ts-node coach-users.ts"
   },
   "devDependencies": {
     "@types/node": "^18.11.18"
-  }
+  },
+  "packageManager": "pnpm@9.1.0+sha256.22e36fba7f4880ecf749a5ca128b8435da085ecd49575e7fb9e64d6bf4fad394"
 }

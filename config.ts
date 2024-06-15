@@ -1,4 +1,5 @@
-const replicargs = 'directConnection=true&serverSelectionTimeoutMS=2000&appName=importer';
+const replicargs =
+  "directConnection=true&serverSelectionTimeoutMS=2000&appName=importer";
 export default {
   source: `mongodb://localhost:27117/lichess?readPreference=secondary&${replicargs}`,
   dest: `mongodb://0.0.0.0:27017/lichess`,
@@ -17,6 +18,7 @@ export default {
     analysis: `analysis2`,
     relayTour: `relay_tour`,
     relayRound: `relay`,
+    relayGroup: `relay_group`,
     study: `study`,
     studyChapter: `study_chapter_flat`,
   },
