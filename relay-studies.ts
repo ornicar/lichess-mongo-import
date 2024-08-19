@@ -6,18 +6,20 @@ async function all(dbs: Dbs) {
   const study = await dbs.study();
   const dest = await dbs.dest();
 
-  const localTourIds = await dest
+  await dest.db().collection(config.coll.relayTour).deleteMany({});
+  const localRoundIds = await dest
     .db()
     .collection(config.coll.relayRound)
-    .distinct("tourId", { "sync.upstream.url": /:6399/ });
+    .distinct("_id");
   await dest
     .db()
-    .collection(config.coll.relayTour)
-    .deleteMany({ _id: { $nin: localTourIds } });
+    .collection(config.coll.studyChapter)
+    .deleteMany({ studyId: { $in: localRoundIds } });
   await dest
     .db()
-    .collection(config.coll.relayRound)
-    .deleteMany({ tourId: { $nin: localTourIds } });
+    .collection(config.coll.study)
+    .deleteMany({ _id: { $in: localRoundIds } });
+  await dest.db().collection(config.coll.relayRound).deleteMany({});
 
   const recentTours = () =>
     main
@@ -25,7 +27,7 @@ async function all(dbs: Dbs) {
       .collection(config.coll.relayTour)
       .find({
         tier: { $exists: 1 },
-        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 31 * 3) },
+        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30) },
       })
       .limit(100 * 1000);
 
@@ -36,6 +38,8 @@ async function all(dbs: Dbs) {
     "A0ngU40x",
     "4eSyuxL3",
     "dZPD5Wa0",
+    "vfNNRe8S",
+    "hxRmCe9I",
   ];
   const selectTours = () =>
     main
@@ -43,7 +47,7 @@ async function all(dbs: Dbs) {
       .collection(config.coll.relayTour)
       .find({ _id: { $in: ids } });
 
-  await drainBatch("relay_tour", recentTours(), 20, async (rs) => {
+  await drainBatch("relay_tour", selectTours(), 20, async (rs) => {
     await dest
       .db()
       .collection(config.coll.relayTour)
