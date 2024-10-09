@@ -6,7 +6,8 @@ async function all(dbs: Dbs) {
   const source = await dbs.source();
   const dest = await dbs.dest();
   const selectRecent = { createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 2) } };
-  await drainBatch('puzzle', puzzler.db().collection('puzzle2_puzzle').find(selectRecent), 1000, async ps => {
+  const selectAll = {};
+  await drainBatch('puzzle', puzzler.db().collection('puzzle2').find(selectRecent), 1000, async ps => {
     await copyManyIds(
       source.db(),
       dest.db(),
