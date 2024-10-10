@@ -24,7 +24,8 @@
     "study-analysis": "ts-node study-analysis.ts",
     "study": "ts-node study.ts",
     "bulk-users": "ts-node bulk-users.ts",
-    "coach-users": "ts-node coach-users.ts"
+    "coach-users": "ts-node coach-users.ts",
+    "simul-games": "ts-node simul-games.ts"
   },
   "devDependencies": {
     "@types/node": "^18.11.18"
