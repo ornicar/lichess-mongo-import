@@ -21,5 +21,11 @@ export default {
     relayGroup: `relay_group`,
     study: `study`,
     studyChapter: `study_chapter_flat`,
+    report: 'report2',
+    appeal: 'appeal',
+    note: 'note',
+    modlog: 'modlog',
+    playban: 'playban',
+    shutup: 'shutup',
   },
 };
