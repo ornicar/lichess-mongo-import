@@ -1,5 +1,5 @@
-import { Collection, Db, FindCursor, MongoClient, MongoError } from 'mongodb';
-import config from './config';
+import { Collection, Db, FindCursor, MongoClient, MongoError } from "mongodb";
+import config from "./config";
 
 type Connect = () => Promise<MongoClient>;
 
@@ -17,10 +17,12 @@ export async function copyManyIds(
   allIds: string[],
   transform: (doc: any) => any = identity,
 ) {
-  return await sequence(chunkArray(allIds, 1000), async ids => {
-    const existing = await destDb.collection(collName).distinct<string>('_id', { _id: { $in: ids } as any });
+  return await sequence(chunkArray(allIds, 1000), async (ids) => {
+    const existing = await destDb
+      .collection(collName)
+      .distinct<string>("_id", { _id: { $in: ids } as any });
     const existingSet = new Set(existing);
-    const missing = ids.filter(id => !existingSet.has(id));
+    const missing = ids.filter((id) => !existingSet.has(id));
     if (missing.length) {
       const docs = await sourceDb
         .collection(collName)
@@ -28,7 +30,10 @@ export async function copyManyIds(
         .toArray();
       if (docs.length) {
         console.log(`${collName} ${docs.length}`);
-        return await insertMany(destDb.collection(collName), docs.map(transform));
+        return await insertMany(
+          destDb.collection(collName),
+          docs.map(transform),
+        );
       }
     }
     return Promise.resolve();
@@ -37,27 +42,47 @@ export async function copyManyIds(
 export async function copyOneId(dbs: Dbs, collName: string, id: any) {
   const dest = await dbs.dest();
   const source = await dbs.source();
-  const exists = await dest.db().collection(collName).countDocuments({ _id: id });
+  const exists = await dest
+    .db()
+    .collection(collName)
+    .countDocuments({ _id: id });
   if (exists) return;
   const doc = await source.db().collection(collName).findOne({ _id: id });
   if (doc) await insert(dest.db().collection(collName), doc);
 }
 
-export async function copySelect(from: Db, to: Db, collName: string, select: any) {
-  return await drain(collName, from.collection(collName).find(select), d => insert(to.collection(collName), d));
+export async function copySelect(
+  from: Db,
+  to: Db,
+  collName: string,
+  select: any,
+) {
+  return await drain(collName, from.collection(collName).find(select), (d) =>
+    insert(to.collection(collName), d),
+  );
 }
 
 export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
 }
 export async function upsert(coll: Collection, doc: any) {
-  return await coll.updateOne({ _id: doc._id }, { $set: doc }, { upsert: true });
+  return await coll.updateOne(
+    { _id: doc._id },
+    { $set: doc },
+    { upsert: true },
+  );
 }
 export async function insertMany(coll: Collection, docs: any[]) {
-  return docs.length ? await coll.insertMany(docs, { ordered: false }).catch(ignoreDup) : Promise.resolve();
+  return docs.length
+    ? await coll.insertMany(docs, { ordered: false }).catch(ignoreDup)
+    : Promise.resolve();
 }
 
-export async function drain(name: string, cursor: FindCursor<any>, f: (doc: any) => Promise<any>): Promise<void> {
+export async function drain(
+  name: string,
+  cursor: FindCursor<any>,
+  f: (doc: any) => Promise<any>,
+): Promise<void> {
   let nb = 0;
   while (await cursor.hasNext()) {
     nb++;
@@ -110,14 +135,17 @@ export function transformUser(u: any) {
   return {
     ...u,
     sha512: false,
-    salt: '',
-    password: '11a6efa91890f4fdbdddf3c344d40b8a96eb5d5d', // 'password'
+    salt: "",
+    password: "11a6efa91890f4fdbdddf3c344d40b8a96eb5d5d", // 'password'
   };
 }
 
 const identity = <A>(a: A) => a;
 
-async function sequence<A, B>(args: A[], f: (a: A) => Promise<B>): Promise<B[]> {
+async function sequence<A, B>(
+  args: A[],
+  f: (a: A) => Promise<B>,
+): Promise<B[]> {
   if (!args.length) return Promise.resolve([]);
   const result = await f(args[0]);
   const nexts = await sequence(args.slice(1), f);
@@ -141,7 +169,7 @@ const memoize = <A>(compute: () => A): Memo<A> => {
 
 export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
   const connect = async (url: string) => {
-    console.log('-------- ' + url);
+    console.log("-------- " + url);
     return await MongoClient.connect(url);
   };
   const dbs = {
@@ -160,7 +188,7 @@ export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
     }
   });
 
-  console.log('DONE');
+  console.log("DONE");
 }
 
 /* process.on('unhandledRejection', (err) => { */

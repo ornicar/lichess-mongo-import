@@ -3,7 +3,7 @@ const replicargs =
 export default {
   source: `mongodb://localhost:27117/lichess?readPreference=secondary&${replicargs}`,
   dest: `mongodb://0.0.0.0:27017/lichess`,
-  puzzler: `mongodb://0.0.0.0:27017/lichess`,
+  puzzler: `mongodb://0.0.0.0:27017/puzzler`,
   study: `mongodb://0.0.0.0:27118/study?${replicargs}`,
   dbName: `lichess`,
   coll: {
@@ -21,5 +21,11 @@ export default {
     relayGroup: `relay_group`,
     study: `study`,
     studyChapter: `study_chapter_flat`,
+    report: 'report2',
+    appeal: 'appeal',
+    note: 'note',
+    modlog: 'modlog',
+    playban: 'playban',
+    shutup: 'shutup',
   },
 };

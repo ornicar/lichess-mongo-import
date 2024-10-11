@@ -28,9 +28,7 @@ async function all(dbs: Dbs) {
       .collection(config.coll.relayTour)
       .find({ _id: { $in: ids } });
 
-  const fetchTours = recentTours;
-
-  await drainBatch("relay_tour", fetchTours(), 100, async (rs) => {
+  await drainBatch("relay_tour", selectTours(), 20, async (rs) => {
     await dest
       .db()
       .collection(config.coll.relayTour)
