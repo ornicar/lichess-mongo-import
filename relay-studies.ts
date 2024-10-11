@@ -6,18 +6,10 @@ async function all(dbs: Dbs) {
   const study = await dbs.study();
   const dest = await dbs.dest();
 
-  const localTourIds = await dest
-    .db()
-    .collection(config.coll.relayRound)
-    .distinct("tourId", { "sync.upstream.url": /:6399/ });
-  await dest
-    .db()
-    .collection(config.coll.relayTour)
-    .deleteMany({ _id: { $nin: localTourIds } });
-  await dest
-    .db()
-    .collection(config.coll.relayRound)
-    .deleteMany({ tourId: { $nin: localTourIds } });
+  await dest.db().collection(config.coll.relayTour).deleteMany();
+  await dest.db().collection(config.coll.relayRound).deleteMany();
+
+  await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
   const recentTours = () =>
     main
@@ -25,48 +17,41 @@ async function all(dbs: Dbs) {
       .collection(config.coll.relayTour)
       .find({
         tier: { $exists: 1 },
-        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 31 * 3) },
+        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
       })
       .limit(100 * 1000);
 
-  const ids: any[] = [
-    "qcYMoHup",
-    "0gqPhcrR",
-    "DOj6Buj2",
-    "A0ngU40x",
-    "4eSyuxL3",
-    "dZPD5Wa0",
-  ];
+  const ids: any[] = ["wQu3piU1"];
   const selectTours = () =>
     main
       .db()
       .collection(config.coll.relayTour)
       .find({ _id: { $in: ids } });
 
-  await drainBatch("relay_tour", recentTours(), 20, async (rs) => {
+  const fetchTours = recentTours;
+
+  await drainBatch("relay_tour", fetchTours(), 100, async (rs) => {
     await dest
       .db()
       .collection(config.coll.relayTour)
       .insertMany(rs, { ordered: false });
     const tourIds = rs.map((r) => r._id);
     const byTourIds = { tourId: { $in: tourIds } };
-    await copyManyIds(main.db(), dest.db(), config.coll.relayTour, tourIds);
+    // await copyManyIds(main.db(), dest.db(), config.coll.relayTour, tourIds);
     await copySelect(main.db(), dest.db(), config.coll.relayRound, byTourIds);
     await drainBatch(
       "relay_study",
       dest.db().collection(config.coll.relayRound).find(byTourIds),
-      20,
+      100,
       async (rs) => {
         const roundIds = rs.map((r) => r._id);
         await copyManyIds(study.db(), dest.db(), config.coll.study, roundIds);
-        await copySelect(study.db(), dest.db(), config.coll.studyChapter, {
-          studyId: { $in: roundIds },
-        });
+        // await copySelect(study.db(), dest.db(), config.coll.studyChapter, {
+        //   studyId: { $in: roundIds },
+        // });
       },
     );
   });
-
-  await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 }
 
 run((dbs, _) => all(dbs));
