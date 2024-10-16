@@ -27,5 +27,7 @@ export default {
     modlog: 'modlog',
     playban: 'playban',
     shutup: 'shutup',
+    msgThread: 'msg_thread',
+    msgMsg: 'msg_msg',
   },
 };
