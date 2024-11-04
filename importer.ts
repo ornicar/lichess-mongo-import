@@ -116,7 +116,7 @@ export async function drainBatch(
   }
 }
 
-const ignoreDup = (err: MongoError) => {
+export const ignoreDup = (err: MongoError) => {
   if ([11000, 15, 22].includes(err.code as number)) return;
   console.error(err);
   process.exit(1);

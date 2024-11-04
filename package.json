@@ -6,9 +6,9 @@
   "author": "Thibault Duplessis",
   "license": "MIT",
   "dependencies": {
-    "mongodb": "^5.6",
-    "ts-node": "^10.9",
-    "typescript": "^5.1"
+    "mongodb": "^5.9.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
   },
   "scripts": {
     "tournament": "ts-node tournament.ts",
@@ -25,10 +25,11 @@
     "study": "ts-node study.ts",
     "bulk-users": "ts-node bulk-users.ts",
     "coach-users": "ts-node coach-users.ts",
-    "simul-games": "ts-node simul-games.ts"
+    "simul-games": "ts-node simul-games.ts",
+    "user-mod": "ts-node user-mod.ts"
   },
   "devDependencies": {
-    "@types/node": "^18.11.18"
+    "@types/node": "^18.19.57"
   },
   "packageManager": "pnpm@9.1.0+sha256.22e36fba7f4880ecf749a5ca128b8435da085ecd49575e7fb9e64d6bf4fad394"
 }

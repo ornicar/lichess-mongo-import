@@ -9,7 +9,7 @@ async function all(dbs: Dbs) {
     .db()
     .collection('puzzle2')
     .distinct('gameId', {
-      createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 2) },
+      createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 1) },
     });
   await drainBatch(
     'game',

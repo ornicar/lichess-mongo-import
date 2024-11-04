@@ -6,6 +6,7 @@ import {
   drainBatch,
   copySelect,
   insert,
+  ignoreDup,
 } from "./importer";
 
 async function one(dbs: Dbs, id: any) {
@@ -42,9 +43,20 @@ async function one(dbs: Dbs, id: any) {
     .find({ users: id }), 20, async (threads) => {
       await dest
         .db()
-        .collection(config.coll.relayTour)
-        .insertMany(threads, { ordered: false });
+        .collection(config.coll.msgThread)
+        .insertMany(threads, { ordered: false }).catch(ignoreDup);
       await copySelect(main.db(), dest.db(), config.coll.msgMsg, { tid: { $in: threads.map(t => t._id) } });
+    });
+
+  await drainBatch(config.coll.game, main
+    .db()
+    .collection(config.coll.game)
+    .find({ us: id }), 100, async (games) => {
+      await dest
+        .db()
+        .collection(config.coll.game)
+        .insertMany(games, { ordered: false }).catch(ignoreDup);
+      await copySelect(main.db(), dest.db(), config.coll.chat, { _id: { $in: games.map(g => g._id) } });
     });
 }
 
