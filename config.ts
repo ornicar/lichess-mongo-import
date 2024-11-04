@@ -29,5 +29,6 @@ export default {
     shutup: 'shutup',
     msgThread: 'msg_thread',
     msgMsg: 'msg_msg',
+    chat: 'chat',
   },
 };
