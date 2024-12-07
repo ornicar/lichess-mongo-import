@@ -44,9 +44,15 @@ async function all(dbs: Dbs) {
       async (rs) => {
         const roundIds = rs.map((r) => r._id);
         await copyManyIds(study.db(), dest.db(), config.coll.study, roundIds);
-        // await copySelect(study.db(), dest.db(), config.coll.studyChapter, {
-        //   studyId: { $in: roundIds },
-        // });
+        await copySelect(study.db(), dest.db(), config.coll.studyChapter, {
+          studyId: { $in: roundIds },
+        });
+        await copyManyIds(
+          main.db(),
+          dest.db(),
+          config.coll.relayStats,
+          roundIds,
+        );
       },
     );
   });
