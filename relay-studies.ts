@@ -8,6 +8,7 @@ async function all(dbs: Dbs) {
 
   await dest.db().collection(config.coll.relayTour).deleteMany();
   await dest.db().collection(config.coll.relayRound).deleteMany();
+  await dest.db().collection(config.coll.relayGroup).deleteMany();
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
