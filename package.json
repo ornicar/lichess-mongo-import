@@ -26,7 +26,8 @@
     "bulk-users": "ts-node bulk-users.ts",
     "coach-users": "ts-node coach-users.ts",
     "simul-games": "ts-node simul-games.ts",
-    "user-mod": "ts-node user-mod.ts"
+    "user-mod": "ts-node user-mod.ts",
+    "team": "ts-node team.ts"
   },
   "devDependencies": {
     "@types/node": "^18.19.57"

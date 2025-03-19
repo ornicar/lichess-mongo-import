@@ -8,6 +8,7 @@ export default {
   dbName: `lichess`,
   coll: {
     user: `user4`,
+    userPerf: `user_perf`,
     tournament: `tournament2`,
     tournamentPairing: `tournament_pairing`,
     tournamentPlayer: `tournament_player`,
@@ -31,5 +32,7 @@ export default {
     msgThread: "msg_thread",
     msgMsg: "msg_msg",
     chat: "chat",
+    team: "team",
+    teamMember: "team_member",
   },
 };

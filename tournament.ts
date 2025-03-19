@@ -1,26 +1,51 @@
-import config from './config';
-import { Dbs, run, insert, drain, copyManyIds, transformUser } from './importer';
+import config from "./config";
+import {
+  Dbs,
+  run,
+  insert,
+  drain,
+  copyManyIds,
+  transformUser,
+  copyOneId,
+} from "./importer";
 
 async function one(dbs: Dbs, id: any) {
   const main = await dbs.source();
   const dest = await dbs.dest();
-  const tour = await main.db().collection(config.coll.tournament).findOne({ _id: id });
+  const tour = await main
+    .db()
+    .collection(config.coll.tournament)
+    .findOne({ _id: id });
   await insert(dest.db().collection(config.coll.tournament), tour);
 
-  const players = main.db().collection(config.coll.tournamentPlayer).find({ tid: tour!._id });
+  await copyOneId(dbs, "chat", id);
+
+  const players = main
+    .db()
+    .collection(config.coll.tournamentPlayer)
+    .find({ tid: tour!._id });
   const playerColl = dest.db().collection(config.coll.tournamentPlayer);
   const userIds: string[] = [];
-  await drain(config.coll.tournamentPlayer, players, p => {
+  await drain(config.coll.tournamentPlayer, players, (p) => {
     userIds.push(p.uid);
     return insert(playerColl, p);
   });
 
-  await copyManyIds(main.db(), dest.db(), config.coll.user, userIds, transformUser);
+  await copyManyIds(
+    main.db(),
+    dest.db(),
+    config.coll.user,
+    userIds,
+    transformUser,
+  );
 
-  const pairings = main.db().collection(config.coll.tournamentPairing).find({ tid: tour!._id });
+  const pairings = main
+    .db()
+    .collection(config.coll.tournamentPairing)
+    .find({ tid: tour!._id });
   const pairingColl = dest.db().collection(config.coll.tournamentPairing);
   const gameIds: string[] = [];
-  await drain(config.coll.tournamentPairing, pairings, p => {
+  await drain(config.coll.tournamentPairing, pairings, (p) => {
     gameIds.push(p._id);
     return insert(pairingColl, p);
   });

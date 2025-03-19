@@ -8,6 +8,7 @@ async function all(dbs: Dbs) {
 
   await dest.db().collection(config.coll.relayTour).deleteMany();
   await dest.db().collection(config.coll.relayRound).deleteMany();
+  await dest.db().collection(config.coll.relayGroup).deleteMany();
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
@@ -18,10 +19,11 @@ async function all(dbs: Dbs) {
       .find({
         tier: { $exists: 1 },
         createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
+        // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
       })
       .limit(100 * 1000);
 
-  const ids: any[] = ["wQu3piU1"];
+  const ids: any[] = ["n3yHJI5Y"];
   const selectTours = () =>
     main
       .db()
@@ -44,9 +46,17 @@ async function all(dbs: Dbs) {
       async (rs) => {
         const roundIds = rs.map((r) => r._id);
         await copyManyIds(study.db(), dest.db(), config.coll.study, roundIds);
-        await copySelect(study.db(), dest.db(), config.coll.studyChapter, {
-          studyId: { $in: roundIds },
-        });
+        const chapterSelect = { studyId: { $in: roundIds } };
+        await dest
+          .db()
+          .collection(config.coll.studyChapter)
+          .deleteMany(chapterSelect);
+        await copySelect(
+          study.db(),
+          dest.db(),
+          config.coll.studyChapter,
+          chapterSelect,
+        );
         await copyManyIds(
           main.db(),
           dest.db(),
