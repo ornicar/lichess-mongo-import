@@ -7,6 +7,7 @@ export default {
   study: `mongodb://0.0.0.0:27118/study?${replicargs}`,
   coll: {
     user: `user4`,
+    userPerf: `user_perf`,
     tournament: `tournament2`,
     tournamentPairing: `tournament_pairing`,
     tournamentPlayer: `tournament_player`,
@@ -32,5 +33,7 @@ export default {
     chat: "chat",
     puzzle: "puzzle2_puzzle",
     puzzleRound: "puzzle2_round",
+    team: "team",
+    teamMember: "team_member",
   },
 };

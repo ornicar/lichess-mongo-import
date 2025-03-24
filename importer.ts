@@ -65,6 +65,10 @@ export async function copySelect(
 export async function insert(coll: Collection, doc: any) {
   return await coll.insertOne(doc).catch(ignoreDup);
 }
+export async function insertOverride(coll: Collection, doc: any) {
+  await coll.deleteOne({ _id: doc._id });
+  return await insert(coll, doc);
+}
 export async function upsert(coll: Collection, doc: any) {
   return await coll.updateOne(
     { _id: doc._id },
