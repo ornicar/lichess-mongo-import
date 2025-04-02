@@ -8,6 +8,7 @@ export interface Dbs {
   dest: Connect;
   puzzler: Connect;
   study: Connect;
+  yolo: Connect;
 }
 
 export async function copyManyIds(
@@ -181,6 +182,7 @@ export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
     dest: memoize(() => connect(config.dest)),
     puzzler: memoize(() => connect(config.puzzler)),
     study: memoize(() => connect(config.study)),
+    yolo: memoize(() => connect(config.yolo)),
   };
   await f(dbs, process.argv.slice(2));
   Object.entries(dbs).forEach(async ([name, memo]) => {
