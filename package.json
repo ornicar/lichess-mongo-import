@@ -27,6 +27,7 @@
     "coach-users": "ts-node coach-users.ts",
     "simul-games": "ts-node simul-games.ts",
     "user-mod": "ts-node user-mod.ts",
+    "user-puzzles": "ts-node user-puzzles.ts",
     "team": "ts-node team.ts"
   },
   "devDependencies": {
