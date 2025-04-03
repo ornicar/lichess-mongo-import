@@ -16,6 +16,10 @@ async function one(dbs: Dbs, id: any) {
     .db()
     .collection(config.coll.tournament)
     .findOne({ _id: id });
+  if (!tour) {
+    console.log("tournament not found", id);
+    return;
+  }
   await insert(dest.db().collection(config.coll.tournament), tour);
 
   await copyOneId(dbs, "chat", id);
@@ -23,7 +27,7 @@ async function one(dbs: Dbs, id: any) {
   const players = main
     .db()
     .collection(config.coll.tournamentPlayer)
-    .find({ tid: tour!._id });
+    .find({ tid: tour._id });
   const playerColl = dest.db().collection(config.coll.tournamentPlayer);
   const userIds: string[] = [];
   await drain(config.coll.tournamentPlayer, players, (p) => {
@@ -51,6 +55,9 @@ async function one(dbs: Dbs, id: any) {
   });
 
   await copyManyIds(main.db(), dest.db(), config.coll.game, gameIds);
+
+  if (tour.forTeams)
+    await copyManyIds(main.db(), dest.db(), config.coll.team, tour.forTeams);
 }
 
 run((dbs, args) => one(dbs, args[0]));
