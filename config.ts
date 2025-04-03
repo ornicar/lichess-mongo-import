@@ -3,7 +3,7 @@ const replicargs =
 export default {
   source: `mongodb://localhost:27117/lichess?readPreference=secondary&${replicargs}`,
   dest: `mongodb://0.0.0.0:27017/lichess`,
-  puzzler: `mongodb://0.0.0.0:27317/puzzler`,
+  puzzler: `mongodb://0.0.0.0:27317/puzzler?readPreference=secondary&${replicargs}`,
   yolo: `mongodb://0.0.0.0:27119/lichess`,
   study: `mongodb://0.0.0.0:27118/study?${replicargs}`,
   coll: {
