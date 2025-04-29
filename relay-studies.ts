@@ -18,7 +18,8 @@ async function all(dbs: Dbs) {
       .collection(config.coll.relayTour)
       .find({
         tier: { $exists: 1 },
-        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
+        // createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
+        createdAt: { $gt: new Date("2020/01/01") },
         // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
       })
       .limit(100 * 1000);
@@ -62,6 +63,16 @@ async function all(dbs: Dbs) {
           dest.db(),
           config.coll.relayStats,
           roundIds,
+        );
+        const analysisIds = await dest
+          .db()
+          .collection(config.coll.studyChapter)
+          .distinct<string>("_id", { studyId: { $in: roundIds } });
+        await copyManyIds(
+          main.db(),
+          dest.db(),
+          config.coll.analysis,
+          analysisIds,
         );
       },
     );
