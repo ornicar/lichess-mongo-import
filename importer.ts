@@ -6,6 +6,7 @@ type Connect = () => Promise<MongoClient>;
 export interface Dbs {
   source: Connect;
   dest: Connect;
+  puzzlerLocal: Connect;
   puzzler: Connect;
   study: Connect;
   yolo: Connect;
@@ -181,6 +182,7 @@ export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
     source: memoize(() => connect(config.source)),
     dest: memoize(() => connect(config.dest)),
     puzzler: memoize(() => connect(config.puzzler)),
+    puzzlerLocal: memoize(() => connect(config.puzzlerLocal)),
     study: memoize(() => connect(config.study)),
     yolo: memoize(() => connect(config.yolo)),
   };

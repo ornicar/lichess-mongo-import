@@ -2,7 +2,7 @@ import config from "./config";
 import { Dbs, run, copyManyIds, drainBatch } from "./importer";
 
 async function all(dbs: Dbs) {
-  const puzzler = await dbs.puzzler();
+  const puzzler = await dbs.puzzlerLocal();
   const source = await dbs.source();
   const dest = await dbs.dest();
   const selectRecent = {
