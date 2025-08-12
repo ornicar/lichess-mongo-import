@@ -6,6 +6,7 @@ export default {
   puzzler: `mongodb://0.0.0.0:27317/puzzler?readPreference=secondary&${replicargs}`,
   puzzlerLocal: `mongodb://0.0.0.0:27017/puzzler`,
   yolo: `mongodb://0.0.0.0:27119/lichess`,
+  stage: `mongodb://0.0.0.0:27217/lichess`,
   study: `mongodb://0.0.0.0:27118/study?${replicargs}`,
   coll: {
     user: "user4",
@@ -39,5 +40,8 @@ export default {
     team: "team",
     teamMember: "team_member",
     activity: "activity2",
+    forumCateg: "f_categ",
+    forumTopic: "f_topic",
+    forumPost: "f_post",
   },
 };

@@ -28,7 +28,8 @@
     "simul-games": "ts-node simul-games.ts",
     "user-mod": "ts-node user-mod.ts",
     "user-puzzles": "ts-node user-puzzles.ts",
-    "team": "ts-node team.ts"
+    "team": "ts-node team.ts",
+    "forum-categ": "ts-node forum-categ.ts"
   },
   "devDependencies": {
     "@types/node": "^18.19.57"

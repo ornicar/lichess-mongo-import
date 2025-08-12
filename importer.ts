@@ -10,6 +10,7 @@ export interface Dbs {
   puzzler: Connect;
   study: Connect;
   yolo: Connect;
+  stage: Connect;
 }
 
 export async function copyManyIds(
@@ -44,13 +45,11 @@ export async function copyManyIds(
 export async function copyOneId(dbs: Dbs, collName: string, id: any) {
   const dest = await dbs.dest();
   const source = await dbs.source();
-  const exists = await dest
-    .db()
-    .collection(collName)
-    .countDocuments({ _id: id });
-  if (exists) return;
+  const exists = await dest.db().collection(collName).findOne({ _id: id });
+  if (exists) return exists;
   const doc = await source.db().collection(collName).findOne({ _id: id });
   if (doc) await insert(dest.db().collection(collName), doc);
+  return doc;
 }
 
 export async function copySelect(
@@ -185,6 +184,7 @@ export async function run(f: (dbs: Dbs, args: any[]) => Promise<void>) {
     puzzlerLocal: memoize(() => connect(config.puzzlerLocal)),
     study: memoize(() => connect(config.study)),
     yolo: memoize(() => connect(config.yolo)),
+    stage: memoize(() => connect(config.stage)),
   };
   await f(dbs, process.argv.slice(2));
   Object.entries(dbs).forEach(async ([name, memo]) => {

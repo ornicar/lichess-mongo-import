@@ -12,26 +12,26 @@ async function all(dbs: Dbs) {
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
-  const recentTours = () =>
-    main
-      .db()
-      .collection(config.coll.relayTour)
-      .find({
-        tier: { $exists: 1 },
-        // createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
-        createdAt: { $gt: new Date("2020/01/01") },
-        // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
-      })
-      .limit(100 * 1000);
+  // const selectTours = () =>
+  //   main
+  //     .db()
+  //     .collection(config.coll.relayTour)
+  //     .find({
+  //       tier: { $exists: 1 },
+  //       createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 1) },
+  //       // createdAt: { $gt: new Date("2020/01/01") },
+  //       // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
+  //     })
+  //     .limit(100 * 1000);
 
-  const ids: any[] = ["n3yHJI5Y"];
+  const ids: any[] = ["GtGAUPVT", "Lz3M21B2"];
   const selectTours = () =>
     main
       .db()
       .collection(config.coll.relayTour)
       .find({ _id: { $in: ids } });
 
-  await drainBatch("relay_tour", recentTours(), 100, async (rs) => {
+  await drainBatch("relay_tour", selectTours(), 100, async (rs) => {
     await dest
       .db()
       .collection(config.coll.relayTour)
