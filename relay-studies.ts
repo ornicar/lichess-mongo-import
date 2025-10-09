@@ -1,7 +1,7 @@
 import config from "./config";
 import { Dbs, run, copyManyIds, drainBatch, copySelect } from "./importer";
 
-async function all(dbs: Dbs) {
+async function all(dbs: Dbs, tourId?: string) {
   const main = await dbs.source();
   const study = await dbs.study();
   const dest = await dbs.dest();
@@ -12,24 +12,22 @@ async function all(dbs: Dbs) {
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
-  // const selectTours = () =>
-  //   main
-  //     .db()
-  //     .collection(config.coll.relayTour)
-  //     .find({
-  //       tier: { $exists: 1 },
-  //       createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 1) },
-  //       // createdAt: { $gt: new Date("2020/01/01") },
-  //       // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
-  //     })
-  //     .limit(100 * 1000);
-
-  const ids: any[] = ["GtGAUPVT", "Lz3M21B2"];
   const selectTours = () =>
-    main
-      .db()
-      .collection(config.coll.relayTour)
-      .find({ _id: { $in: ids } });
+    tourId
+      ? main
+          .db()
+          .collection(config.coll.relayTour)
+          .find({ _id: tourId as any })
+      : main
+          .db()
+          .collection(config.coll.relayTour)
+          .find({
+            tier: { $exists: 1 },
+            createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 60) },
+            // createdAt: { $gt: new Date("2020/01/01") },
+            // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
+          })
+          .limit(100 * 1000);
 
   await drainBatch("relay_tour", selectTours(), 100, async (rs) => {
     await dest
@@ -64,6 +62,7 @@ async function all(dbs: Dbs) {
           config.coll.relayStats,
           roundIds,
         );
+        await copyManyIds(main.db(), dest.db(), config.coll.chat, roundIds);
         const analysisIds = await dest
           .db()
           .collection(config.coll.studyChapter)
@@ -79,4 +78,4 @@ async function all(dbs: Dbs) {
   });
 }
 
-run((dbs, _) => all(dbs));
+run((dbs, args) => all(dbs, args[0]));
