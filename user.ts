@@ -34,6 +34,10 @@ async function one(dbs: Dbs, id: any) {
 
     await copyManyIds(source.db(), dest.db(), config.coll.analysis, gameIds);
 
+    await copySelect(source.db(), dest.db(), config.coll.modlog, { user: id });
+
+    await copySelect(source.db(), dest.db(), config.coll.note, { to: id });
+
     await copySelect(
       source.db(),
       dest.db(),

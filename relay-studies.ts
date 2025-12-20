@@ -6,30 +6,48 @@ async function all(dbs: Dbs, tourId?: string) {
   const study = await dbs.study();
   const dest = await dbs.dest();
 
-  await dest.db().collection(config.coll.relayTour).deleteMany();
-  await dest.db().collection(config.coll.relayRound).deleteMany();
-  await dest.db().collection(config.coll.relayGroup).deleteMany();
+  if (!tourId) {
+    await dest.db().collection(config.coll.relayTour).deleteMany();
+    await dest.db().collection(config.coll.relayRound).deleteMany();
+    await dest.db().collection(config.coll.relayGroup).deleteMany();
+  } else {
+    await dest
+      .db()
+      .collection(config.coll.relayGroup)
+      .deleteOne({ tours: tourId });
+  }
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
-  const selectTours = () =>
-    tourId
-      ? main
-          .db()
-          .collection(config.coll.relayTour)
-          .find({ _id: tourId as any })
-      : main
-          .db()
-          .collection(config.coll.relayTour)
-          .find({
-            tier: { $exists: 1 },
-            createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 60) },
-            // createdAt: { $gt: new Date("2020/01/01") },
-            // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
-          })
-          .limit(100 * 1000);
+  async function allTourIdsOfGroup(tourId: string): Promise<string[]> {
+    return await main
+      .db()
+      .collection(config.coll.relayGroup)
+      .distinct<string>("tours", { tours: tourId });
+  }
 
-  await drainBatch("relay_tour", selectTours(), 100, async (rs) => {
+  const selectTours = async () => {
+    if (tourId) {
+      const ids = await allTourIdsOfGroup(tourId);
+      return main
+        .db()
+        .collection(config.coll.relayTour)
+        .find({ _id: { $in: ids as any[] } });
+    }
+    return main
+      .db()
+      .collection(config.coll.relayTour)
+      .find({
+        tier: { $exists: 1 },
+        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 60) },
+        // createdAt: { $gt: new Date("2020/01/01") },
+        // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
+      })
+      .limit(100 * 1000);
+  };
+
+  const selector = await selectTours();
+  await drainBatch("relay_tour", selector, 100, async (rs) => {
     await dest
       .db()
       .collection(config.coll.relayTour)
