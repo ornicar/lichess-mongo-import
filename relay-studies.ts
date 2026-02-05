@@ -28,7 +28,8 @@ async function all(dbs: Dbs, tourId?: string) {
 
   const selectTours = async () => {
     if (tourId) {
-      const ids = await allTourIdsOfGroup(tourId);
+      let ids = await allTourIdsOfGroup(tourId);
+      if (!ids.length) ids = [tourId];
       return main
         .db()
         .collection(config.coll.relayTour)

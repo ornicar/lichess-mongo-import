@@ -1,21 +1,11 @@
 import config from "./config";
-import {
-  Dbs,
-  run,
-  drainBatch,
-  copySelect,
-  ignoreDup,
-  insertOverride,
-} from "./importer";
+import { Dbs, run, drainBatch, copySelect, ignoreDup, insertOverride } from "./importer";
 
 async function one(dbs: Dbs, id: any) {
   const main = await dbs.source();
   const dest = await dbs.dest();
   id = id.toLowerCase();
-  const user = await main
-    .db()
-    .collection(config.coll.user)
-    .findOne({ _id: id });
+  const user = await main.db().collection(config.coll.user).findOne({ _id: id });
   if (!user) throw "User not found";
   insertOverride(dest.db().collection(config.coll.user), user);
   await copySelect(main.db(), dest.db(), config.coll.report, {
@@ -33,11 +23,7 @@ async function one(dbs: Dbs, id: any) {
     _id: user._id,
   });
   await copySelect(main.db(), dest.db(), config.coll.shutup, { _id: user._id });
-  const reports = await dest
-    .db()
-    .collection(config.coll.report)
-    .find({ user: user._id })
-    .toArray();
+  const reports = await dest.db().collection(config.coll.report).find({ user: user._id }).toArray();
   await copySelect(main.db(), dest.db(), config.coll.user, {
     _id: { $in: reports.flatMap((r) => r.atoms.map((a: any) => a.by)) },
   });
@@ -69,6 +55,9 @@ async function one(dbs: Dbs, id: any) {
         .insertMany(games, { ordered: false })
         .catch(ignoreDup);
       await copySelect(main.db(), dest.db(), config.coll.chat, {
+        _id: { $in: games.map((g) => g._id) },
+      });
+      await copySelect(main.db(), dest.db(), config.coll.analysis, {
         _id: { $in: games.map((g) => g._id) },
       });
     },
