@@ -1,9 +1,8 @@
-const replicargs =
-  "directConnection=true&serverSelectionTimeoutMS=2000&appName=importer";
+const replicargs = "directConnection=true&serverSelectionTimeoutMS=2000&appName=importer";
 export default {
   source: `mongodb://localhost:27117/lichess?readPreference=secondary&${replicargs}`,
   dest: `mongodb://0.0.0.0:27017/lichess`,
-  puzzler: `mongodb://0.0.0.0:27317/puzzler?readPreference=secondary&${replicargs}`,
+  puzzler: `mongodb://0.0.0.0:27517/puzzler?readPreference=secondary&${replicargs}`,
   puzzlerLocal: `mongodb://0.0.0.0:27017/puzzler`,
   yolo: `mongodb://0.0.0.0:27119/lichess`,
   stage: `mongodb://0.0.0.0:27217/lichess`,
