@@ -31,6 +31,7 @@ export default {
     modlog: "modlog",
     playban: "playban",
     shutup: "shutup",
+    security: "security",
     msgThread: "msg_thread",
     msgMsg: "msg_msg",
     chat: "chat",

@@ -23,6 +23,7 @@ async function one(dbs: Dbs, id: any) {
     _id: user._id,
   });
   await copySelect(main.db(), dest.db(), config.coll.shutup, { _id: user._id });
+  await copySelect(main.db(), dest.db(), config.coll.security, { user: user._id });
   const reports = await dest.db().collection(config.coll.report).find({ user: user._id }).toArray();
   await copySelect(main.db(), dest.db(), config.coll.user, {
     _id: { $in: reports.flatMap((r) => r.atoms.map((a: any) => a.by)) },
