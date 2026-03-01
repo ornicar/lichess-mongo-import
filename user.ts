@@ -52,9 +52,9 @@ async function one(dbs: Dbs, id: any) {
           _id: { $in: leads.map((l) => l.t) },
         });
 
-        await copySelect(source.db(), dest.db(), config.coll.tournamentPlayer, {
-          tid: { $in: leads.map((l) => l.t) },
-        });
+        // await copySelect(source.db(), dest.db(), config.coll.tournamentPlayer, {
+        //   tid: { $in: leads.map((l) => l.t) },
+        // });
       },
     );
 
