@@ -11,10 +11,7 @@ async function all(dbs: Dbs, tourId?: string) {
     await dest.db().collection(config.coll.relayRound).deleteMany();
     await dest.db().collection(config.coll.relayGroup).deleteMany();
   } else {
-    await dest
-      .db()
-      .collection(config.coll.relayGroup)
-      .deleteOne({ tours: tourId });
+    await dest.db().collection(config.coll.relayGroup).deleteOne({ tours: tourId });
   }
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
@@ -39,8 +36,8 @@ async function all(dbs: Dbs, tourId?: string) {
       .db()
       .collection(config.coll.relayTour)
       .find({
-        tier: { $exists: 1 },
-        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 60) },
+        // tier: { $exists: 1 },
+        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
         // createdAt: { $gt: new Date("2020/01/01") },
         // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
       })
@@ -49,10 +46,7 @@ async function all(dbs: Dbs, tourId?: string) {
 
   const selector = await selectTours();
   await drainBatch("relay_tour", selector, 100, async (rs) => {
-    await dest
-      .db()
-      .collection(config.coll.relayTour)
-      .insertMany(rs, { ordered: false });
+    await dest.db().collection(config.coll.relayTour).insertMany(rs, { ordered: false });
     const tourIds = rs.map((r) => r._id);
     const byTourIds = { tourId: { $in: tourIds } };
     // await copyManyIds(main.db(), dest.db(), config.coll.relayTour, tourIds);
@@ -65,33 +59,15 @@ async function all(dbs: Dbs, tourId?: string) {
         const roundIds = rs.map((r) => r._id);
         await copyManyIds(study.db(), dest.db(), config.coll.study, roundIds);
         const chapterSelect = { studyId: { $in: roundIds } };
-        await dest
-          .db()
-          .collection(config.coll.studyChapter)
-          .deleteMany(chapterSelect);
-        await copySelect(
-          study.db(),
-          dest.db(),
-          config.coll.studyChapter,
-          chapterSelect,
-        );
-        await copyManyIds(
-          main.db(),
-          dest.db(),
-          config.coll.relayStats,
-          roundIds,
-        );
+        await dest.db().collection(config.coll.studyChapter).deleteMany(chapterSelect);
+        await copySelect(study.db(), dest.db(), config.coll.studyChapter, chapterSelect);
+        await copyManyIds(main.db(), dest.db(), config.coll.relayStats, roundIds);
         await copyManyIds(main.db(), dest.db(), config.coll.chat, roundIds);
         const analysisIds = await dest
           .db()
           .collection(config.coll.studyChapter)
           .distinct<string>("_id", { studyId: { $in: roundIds } });
-        await copyManyIds(
-          main.db(),
-          dest.db(),
-          config.coll.analysis,
-          analysisIds,
-        );
+        await copyManyIds(main.db(), dest.db(), config.coll.analysis, analysisIds);
       },
     );
   });

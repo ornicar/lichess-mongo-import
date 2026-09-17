@@ -14,7 +14,7 @@ async function one(dbs: Dbs, id: any) {
   await copySelect(main.db(), dest.db(), config.coll.report, {
     "atoms.by": user._id,
   });
-  await copySelect(main.db(), dest.db(), config.coll.appeal, { _id: user._id });
+  await copySelect(main.db(), dest.db(), config.coll.appeal, { user: user._id });
   await copySelect(main.db(), dest.db(), config.coll.note, { to: user._id });
   await copySelect(main.db(), dest.db(), config.coll.modlog, {
     user: user._id,
