@@ -26,7 +26,7 @@ export default {
     study: "study",
     studyChapter: "study_chapter_flat",
     report: "report2",
-    appeal: "appeal",
+    appeal: "appeal2",
     note: "note",
     modlog: "modlog",
     playban: "playban",

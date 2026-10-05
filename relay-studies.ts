@@ -39,8 +39,8 @@ async function all(dbs: Dbs, tourId?: string) {
       .db()
       .collection(config.coll.relayTour)
       .find({
-        tier: { $exists: 1 },
-        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 10) },
+        // tier: { $exists: 1 },
+        createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 30 * 2) },
         // createdAt: { $gt: new Date("2020/01/01") },
         // createdAt: { $gt: new Date(Date.now() - 1000 * 3600) },
       })
