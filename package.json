@@ -2,14 +2,9 @@
   "name": "lichess-mongo-import",
   "version": "1.0.0",
   "description": "selectively export parts of a mongo DB",
-  "main": "index.js",
-  "author": "Thibault Duplessis",
   "license": "MIT",
-  "dependencies": {
-    "mongodb": "^5.9.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
-  },
+  "author": "Thibault Duplessis",
+  "main": "index.js",
   "scripts": {
     "tournament": "ts-node tournament.ts",
     "tournament-recent": "ts-node tournament-recent.ts",
@@ -31,12 +26,17 @@
     "team": "ts-node team.ts",
     "forum-categ": "ts-node forum-categ.ts"
   },
+  "dependencies": {
+    "mongodb": "^5.9.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
   "devDependencies": {
     "@types/node": "^24.13.3"
   },
-  "packageManager": "pnpm@12.3.4",
   "engines": {
     "node": ">=24",
     "pnpm": ">=12"
-  }
+  },
+  "packageManager": "pnpm@12.3.4"
 }
