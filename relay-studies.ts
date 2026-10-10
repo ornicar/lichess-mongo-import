@@ -11,16 +11,19 @@ async function all(dbs: Dbs, tourId?: string) {
     await dest.db().collection(config.coll.relayRound).deleteMany();
     await dest.db().collection(config.coll.relayGroup).deleteMany();
   } else {
-    await dest.db().collection(config.coll.relayGroup).deleteOne({ tours: tourId });
+    await dest
+      .db()
+      .collection(config.coll.relayGroup)
+      .deleteMany({ $or: [{ _id: tourId } as any, { tours: tourId }] });
   }
 
   await copySelect(main.db(), dest.db(), config.coll.relayGroup, {});
 
-  async function allTourIdsOfGroup(tourId: string): Promise<string[]> {
+  async function allTourIdsOfGroup(id: string): Promise<string[]> {
     return await main
       .db()
       .collection(config.coll.relayGroup)
-      .distinct<string>("tours", { tours: tourId });
+      .distinct<string>("tours", { $or: [{ _id: id } as any, { tours: id }] });
   }
 
   const selectTours = async () => {

@@ -15,10 +15,7 @@ async function one(dbs: Dbs, id: any) {
   const source = await dbs.source();
   const yolo = await dbs.yolo();
   const dest = await dbs.dest();
-  const user = await source
-    .db()
-    .collection(config.coll.user)
-    .findOne({ _id: id });
+  const user = await source.db().collection(config.coll.user).findOne({ _id: id });
 
   if (user) {
     await insert(dest.db().collection(config.coll.user), user);
@@ -38,12 +35,7 @@ async function one(dbs: Dbs, id: any) {
 
     await copySelect(source.db(), dest.db(), config.coll.note, { to: id });
 
-    await copySelect(
-      source.db(),
-      dest.db(),
-      config.coll.tournamentLeaderboard,
-      { u: id },
-    );
+    await copySelect(source.db(), dest.db(), config.coll.tournamentLeaderboard, { u: id });
 
     await drainBatch(
       config.coll.tournament,
@@ -60,9 +52,9 @@ async function one(dbs: Dbs, id: any) {
           _id: { $in: leads.map((l) => l.t) },
         });
 
-        await copySelect(source.db(), dest.db(), config.coll.tournamentPlayer, {
-          tid: { $in: leads.map((l) => l.t) },
-        });
+        // await copySelect(source.db(), dest.db(), config.coll.tournamentPlayer, {
+        //   tid: { $in: leads.map((l) => l.t) },
+        // });
       },
     );
 
