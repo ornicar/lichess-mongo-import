@@ -1,12 +1,12 @@
-import config from "./config";
-import { Dbs, run, copyManyIds, drainBatch } from "./importer";
+import config from "./config.ts";
+import { type Dbs, run, copyManyIds, drainBatch } from "./importer.ts";
 
 async function all(dbs: Dbs) {
   const puzzler = await dbs.puzzlerLocal();
   const source = await dbs.source();
   const dest = await dbs.dest();
   const selectRecent = {
-    createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 2) },
+    createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 1) },
   };
   // const selectAll = {};
   await drainBatch(

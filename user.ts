@@ -1,4 +1,4 @@
-import config from "./config";
+import config from "./config.ts";
 import {
   Dbs,
   run,
@@ -9,7 +9,7 @@ import {
   copySelect,
   drainBatch,
   ignoreDup,
-} from "./importer";
+} from "./importer.ts";
 
 async function one(dbs: Dbs, id: any) {
   const source = await dbs.source();

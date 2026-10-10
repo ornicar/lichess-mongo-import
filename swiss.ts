@@ -1,5 +1,5 @@
 import config from './config';
-import { Dbs, run, insert, drain, copyManyIds, transformUser } from './importer';
+import { type Dbs, run, insert, drain, copyManyIds, transformUser } from './importer';
 
 async function one(dbs: Dbs, id: any) {
   const main = await dbs.source();

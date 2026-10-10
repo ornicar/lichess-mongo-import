@@ -1,5 +1,5 @@
 import { Collection, Db, FindCursor, MongoClient, MongoError } from "mongodb";
-import config from "./config";
+import config from "./config.ts";
 
 type Connect = () => Promise<MongoClient>;
 
@@ -33,10 +33,7 @@ export async function copyManyIds(
         .toArray();
       if (docs.length) {
         console.log(`${collName} ${docs.length}`);
-        return await insertMany(
-          destDb.collection(collName),
-          docs.map(transform),
-        );
+        return await insertMany(destDb.collection(collName), docs.map(transform));
       }
     }
     return Promise.resolve();
@@ -52,12 +49,7 @@ export async function copyOneId(dbs: Dbs, collName: string, id: any) {
   return doc;
 }
 
-export async function copySelect(
-  from: Db,
-  to: Db,
-  collName: string,
-  select: any,
-) {
+export async function copySelect(from: Db, to: Db, collName: string, select: any) {
   return await drain(collName, from.collection(collName).find(select), (d) =>
     insert(to.collection(collName), d),
   );
@@ -71,11 +63,7 @@ export async function insertOverride(coll: Collection, doc: any) {
   return await insert(coll, doc);
 }
 export async function upsert(coll: Collection, doc: any) {
-  return await coll.updateOne(
-    { _id: doc._id },
-    { $set: doc },
-    { upsert: true },
-  );
+  return await coll.updateOne({ _id: doc._id }, { $set: doc }, { upsert: true });
 }
 export async function insertMany(coll: Collection, docs: any[]) {
   return docs.length
@@ -147,10 +135,7 @@ export function transformUser(u: any) {
 
 const identity = <A>(a: A) => a;
 
-async function sequence<A, B>(
-  args: A[],
-  f: (a: A) => Promise<B>,
-): Promise<B[]> {
+async function sequence<A, B>(args: A[], f: (a: A) => Promise<B>): Promise<B[]> {
   if (!args.length) return Promise.resolve([]);
   const result = await f(args[0]);
   const nexts = await sequence(args.slice(1), f);

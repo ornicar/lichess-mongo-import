@@ -1,5 +1,5 @@
 import config from './config';
-import { Dbs, run, copyManyIds, drainBatch } from './importer';
+import { type Dbs, run, copyManyIds, drainBatch } from './importer';
 
 // Get analysis for all study chapters
 async function all(dbs: Dbs) {

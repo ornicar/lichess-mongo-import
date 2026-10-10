@@ -1,5 +1,5 @@
-import config from "./config";
-import { Dbs, run, copyManyIds, drainBatch, copySelect } from "./importer";
+import config from "./config.ts";
+import { type Dbs, run, copyManyIds, drainBatch, copySelect } from "./importer.ts";
 
 async function all(dbs: Dbs, tourId?: string) {
   const main = await dbs.source();

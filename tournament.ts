@@ -1,4 +1,4 @@
-import config from "./config";
+import config from "./config.ts";
 import {
   Dbs,
   run,
@@ -7,7 +7,7 @@ import {
   copyManyIds,
   transformUser,
   copyOneId,
-} from "./importer";
+} from "./importer.ts";
 
 async function one(dbs: Dbs, id: any) {
   const main = await dbs.source();

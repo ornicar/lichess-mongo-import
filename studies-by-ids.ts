@@ -1,5 +1,5 @@
-import config from "./config";
-import { Dbs, run, copyManyIds } from "./importer";
+import config from "./config.ts";
+import { type Dbs, run, copyManyIds } from "./importer.ts";
 
 async function studiesByIds(dbs: Dbs, ids: string[]) {
   const study = await dbs.study();

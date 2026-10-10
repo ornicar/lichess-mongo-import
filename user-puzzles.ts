@@ -1,5 +1,5 @@
-import config from "./config";
-import { Dbs, run, insert, drain, copyManyIds } from "./importer";
+import config from "./config.ts";
+import { type Dbs, run, insert, drain, copyManyIds } from "./importer.ts";
 
 async function one(dbs: Dbs, id: any) {
   const puzzler = await dbs.puzzler();

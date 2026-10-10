@@ -1,5 +1,5 @@
-import config from "./config";
-import { Dbs, run, insert, drain, copyOneId, copySelect } from "./importer";
+import config from "./config.ts";
+import { type Dbs, run, insert, drain, copyOneId, copySelect } from "./importer.ts";
 
 async function recent(dbs: Dbs) {
   const main = await dbs.source();

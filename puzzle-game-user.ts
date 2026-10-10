@@ -1,5 +1,5 @@
-import config from './config';
-import { Dbs, run, copyManyIds, drainBatch } from './importer';
+import config from "./config.ts";
+import { type Dbs, run, copyManyIds, drainBatch } from "./importer.ts";
 
 async function all(dbs: Dbs) {
   const puzzler = await dbs.puzzler();
@@ -7,25 +7,25 @@ async function all(dbs: Dbs) {
   const dest = await dbs.dest();
   const gameIds = await puzzler
     .db()
-    .collection('puzzle2')
-    .distinct('gameId', {
-      createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 1) },
+    .collection("puzzle2")
+    .distinct("gameId", {
+      createdAt: { $gt: new Date(Date.now() - 1000 * 3600 * 24 * 7 * 4 * 2) },
     });
   await drainBatch(
-    'game',
+    "game",
     dest
       .db()
-      .collection('game5')
+      .collection("game5")
       .find({ _id: { $in: gameIds } }),
     10000,
-    async gs => {
+    async (gs) => {
       await copyManyIds(
         source.db(),
         dest.db(),
         config.coll.user,
-        gs.flatMap(g => g.us).filter(id => id && id[0] != '!')
+        gs.flatMap((g) => g.us).filter((id) => id && id[0] != "!"),
       );
-    }
+    },
   );
 }
 

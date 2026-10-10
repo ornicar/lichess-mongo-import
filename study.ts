@@ -1,5 +1,5 @@
 import config from './config';
-import { Dbs, run, copySelect } from './importer';
+import { type Dbs, run, copySelect } from './importer';
 
 async function all(dbs: Dbs, id: string) {
   const study = await dbs.study();

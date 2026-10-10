@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import config from './config';
-import { Dbs, run, upsert } from './importer';
+import { type Dbs, run, upsert } from './importer';
 
 const sep = ':';
 

@@ -1,5 +1,5 @@
-import config from "./config";
-import { Dbs, run, drainBatch, copySelect, ignoreDup, insertOverride } from "./importer";
+import config from "./config.ts";
+import { type Dbs, run, drainBatch, copySelect, ignoreDup, insertOverride } from "./importer.ts";
 
 async function one(dbs: Dbs, id: any) {
   const main = await dbs.source();

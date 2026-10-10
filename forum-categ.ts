@@ -1,4 +1,4 @@
-import config from "./config";
+import config from "./config.ts";
 import {
   Dbs,
   run,
@@ -6,7 +6,7 @@ import {
   drainBatch,
   copyOneId,
   transformUser,
-} from "./importer";
+} from "./importer.ts";
 
 async function recent(dbs: Dbs, categ: string) {
   const main = await dbs.source();
